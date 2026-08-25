@@ -276,7 +276,7 @@ function startTricksEntry(number, tricks) {
 	tricksPlayers.value = players.value.map((name, playerIndex) => ({
 		name,
 		playerIndex,
-		tricks: roundTricks.value[number]?.[playerIndex] ?? null,
+		tricks: roundTricks.value[number]?.[playerIndex] ?? 0,
 	}))
 }
 
