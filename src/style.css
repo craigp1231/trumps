@@ -50,11 +50,14 @@ output { font: 20px Georgia, serif; }
 .history-row small { color: #9b9d98; font: 11px 'Trebuchet MS', sans-serif; }
 .round-dealer { color: #3c7772; font-weight: 700; }
 .schedule-table { width: max-content; max-width: 100%; margin: 0; }
-.schedule-header, .schedule-row { display: grid; margin: 0; grid-template-columns: repeat(4, 35px) repeat(var(--player-count), 40px); gap: 0; align-items: center; padding: 0; }
+.schedule-header, .schedule-row { display: grid; margin: 0; grid-template-columns: repeat(5, 35px) repeat(var(--player-count), 40px); gap: 0; align-items: center; padding: 0; }
 .schedule-header { color: #929795; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; }
 .schedule-row { font-size: 15px; }
 .round-label { display: flex; align-items: center; gap: 7px; padding-left: 5px; }
 .tricks-count { color: #747c7c; }
+.round-suit { display: grid; place-items: center; font: 24px/1 Georgia, serif; }
+.round-suit.black-suit { color: #000; }
+.round-suit.red-suit { color: #bd5c4d; }
 .schedule-row.status-good { color: #16463d; background: #c4d9cb; }
 .schedule-row.status-bad { color: #68231f; background: #e8c7c2; }
 .round-player-cell { position: relative; display: grid; width: 40px; height: 40px; min-width: 40px; align-items: center; justify-items: center; justify-self: center; border: 1px solid #d8d2c7; background: #fffdf9; }
@@ -96,6 +99,15 @@ output { font: 20px Georgia, serif; }
 .add-button:disabled { cursor: not-allowed; opacity: .45; }
 .bidding-modal { max-height: calc(100svh - 40px); overflow-y: auto; }
 .bid-fields { display: grid; gap: 16px; }
+.suit-choices { display: grid; gap: 10px; margin-bottom: 22px; color: #747c7c; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+.suit-choice-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.suit-choice { min-width: 44px; border: 1px solid #c9c4ba; border-radius: 3px; padding: 7px 8px; color: #596267; background: #fffdf9; font: 26px/1 Georgia, serif; }
+.suit-choice.black-suit { color: #000; }
+.suit-choice.red-suit { color: #bd5c4d; }
+.suit-choice:hover, .suit-choice.selected { border-color: #5f9690; color: #2f716c; background: #e5efec; }
+.suit-choice.black-suit:hover, .suit-choice.black-suit.selected { color: #000; }
+.suit-choice.red-suit:hover, .suit-choice.red-suit.selected { color: #bd5c4d; }
+.suit-choice:focus-visible { outline: 2px solid #d46547; outline-offset: 1px; }
 .bid-player { display: grid; gap: 8px; }
 .bid-player-name { display: flex; min-width: 0; justify-content: space-between; gap: 8px; color: #596267; font-size: 14px; }
 .bid-player-name small { color: #c15b3e; font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; }
@@ -103,4 +115,4 @@ output { font: 20px Georgia, serif; }
 .bid-option { min-width: 34px; border: 1px solid #c9c4ba; border-radius: 3px; padding: 7px 9px; color: #596267; background: #fffdf9; }
 .bid-option:hover:not(:disabled), .bid-option.selected { border-color: #5f9690; color: #2f716c; background: #e5efec; }
 .bid-option:disabled { cursor: not-allowed; opacity: .3; }
-@media (max-width: 650px) { .app-shell { width: min(100% - 28px, 540px); padding-top: 24px; } .topbar-actions { flex-direction: column; align-items: stretch; } .edit-button, .reset-button { padding: 8px 10px; font-size: 12px; } .totals-grid { grid-template-columns: repeat(2, 1fr); } .total-card { padding: 5px 8px; } .section-heading { display: block; } .leader-note, .rule-note { margin-top: 12px; } .table-labels { display: none; } .table-labels, .entry-row { grid-template-columns: 1fr 56px 56px 76px; gap: 8px; } .entry-row { padding: 10px 4px; } input { width: 50px; } .schedule-header, .schedule-row { grid-template-columns: repeat(4, 35px) repeat(var(--player-count), 40px); gap: 0; padding: 0; font-size: 12px; } .schedule-header { font-size: 9px; letter-spacing: .5px; } .history-header, .history-row { grid-template-columns: 42px 70px repeat(var(--player-count), minmax(0, 1fr)); gap: 5px; padding: 0; font-size: 12px; } .history-header { font-size: 9px; letter-spacing: .5px; } .player-modal { padding: 28px 20px; } .player-fields { grid-template-columns: 1fr; } }
+@media (max-width: 650px) { .app-shell { width: min(100% - 28px, 540px); padding-top: 24px; } .topbar-actions { flex-direction: column; align-items: stretch; } .edit-button, .reset-button { padding: 8px 10px; font-size: 12px; } .totals-grid { grid-template-columns: repeat(2, 1fr); } .total-card { padding: 5px 8px; } .section-heading { display: block; } .leader-note, .rule-note { margin-top: 12px; } .table-labels { display: none; } .table-labels, .entry-row { grid-template-columns: 1fr 56px 56px 76px; gap: 8px; } .entry-row { padding: 10px 4px; } input { width: 50px; } .schedule-header, .schedule-row { grid-template-columns: repeat(5, 35px) repeat(var(--player-count), 40px); gap: 0; padding: 0; font-size: 12px; } .schedule-header { font-size: 9px; letter-spacing: .5px; } .history-header, .history-row { grid-template-columns: 42px 70px repeat(var(--player-count), minmax(0, 1fr)); gap: 5px; padding: 0; font-size: 12px; } .history-header { font-size: 9px; letter-spacing: .5px; } .player-modal { padding: 28px 20px; } .player-fields { grid-template-columns: 1fr; } }

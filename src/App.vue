@@ -20,11 +20,18 @@ const roundBids = ref({})
 const biddingRound = ref(null)
 const biddingPlayers = ref([])
 const biddingError = ref('')
+const roundSuits = ref({})
 const roundTricks = ref({})
 const tricksRound = ref(null)
 const tricksPlayers = ref([])
 const gridStyle = computed(() => ({ '--player-count': players.value.length }))
 const trickSchedule = [7, 6, 5, 4, 3, 2, 1, 'NT', 1, 2, 3, 4, 5, 6, 7]
+const suits = [
+	{ name: 'Spades', icon: '♠' },
+	{ name: 'Clubs', icon: '♣' },
+	{ name: 'Diamonds', icon: '♦' },
+	{ name: 'Hearts', icon: '♥' },
+]
 
 function saveGameState() {
 	localStorage.setItem(storageKey, JSON.stringify({
@@ -34,6 +41,7 @@ function saveGameState() {
 		draft: draft.value,
 		dealer: dealer.value,
 		roundBids: roundBids.value,
+		roundSuits: roundSuits.value,
 		roundTricks: roundTricks.value,
 	}))
 }
@@ -55,6 +63,7 @@ function restoreGameState() {
 		draft.value = Array.isArray(state.draft) ? state.draft : createDraft(state.players)
 		dealer.value = typeof state.dealer === 'string' ? state.dealer : ''
 		roundBids.value = state.roundBids && typeof state.roundBids === 'object' ? state.roundBids : {}
+		roundSuits.value = state.roundSuits && typeof state.roundSuits === 'object' ? state.roundSuits : {}
 		roundTricks.value = state.roundTricks && typeof state.roundTricks === 'object' ? state.roundTricks : {}
 	} catch {
 		localStorage.removeItem(storageKey)
@@ -67,6 +76,10 @@ function createDraft(names) {
 
 function playerInitial(name) {
 	return name.trim().charAt(0).toUpperCase()
+}
+
+function suitForRound(number) {
+	return suits.find((suit) => suit.name === roundSuits.value[number])
 }
 
 const totals = computed(() => players.value.map((name, playerIndex) => ({
@@ -168,6 +181,7 @@ function startBidding(number, tricks) {
 	const dealerIndex = players.value.indexOf(dealerForRound(number))
 	const order = players.value.slice(dealerIndex + 1).concat(players.value.slice(0, dealerIndex + 1))
 	biddingRound.value = { number, tricks, trickLimit: tricks === 'NT' ? 0 : tricks }
+	biddingRound.value.suit = roundSuits.value[number] ?? null
 	biddingPlayers.value = order.map((name) => ({ name, playerIndex: players.value.indexOf(name), bid: roundBids.value[number]?.[players.value.indexOf(name)] ?? null }))
 	biddingError.value = ''
 }
@@ -208,12 +222,22 @@ function chooseBid(player, bid) {
 	player.bid = bid
 }
 
+function chooseSuit(suit) {
+	if (biddingRound.value) {
+		biddingRound.value.suit = suit
+	}
+}
+
 function bidOptions(tricks) {
 	return Array.from({ length: (tricks === 'NT' ? 0 : tricks) + 1 }, (_, index) => index)
 }
 
 function saveBids() {
 	const total = biddingPlayers.value.reduce((sum, player) => sum + (player.bid ?? 0), 0)
+	if (!biddingRound.value.suit) {
+		biddingError.value = 'Choose a suit for the round.'
+		return
+	}
 	if (biddingPlayers.value.some((player) => player.bid === null)) {
 		biddingError.value = 'Choose a bid for every player.'
 		return
@@ -226,6 +250,7 @@ function saveBids() {
 		bids[player.playerIndex] = player.bid
 		return bids
 	}, [])
+	roundSuits.value[biddingRound.value.number] = biddingRound.value.suit
 	closeBidding()
 }
 
@@ -365,6 +390,7 @@ function startNewGame() {
 	dealer.value = selectedDealer.value
 	rounds.value = []
 	roundBids.value = {}
+	roundSuits.value = {}
 	roundTricks.value = {}
 	roundNumber.value = 1
 	draft.value = createDraft(players.value)
@@ -372,7 +398,7 @@ function startNewGame() {
 }
 
 onMounted(restoreGameState)
-watch([players, rounds, roundNumber, draft, dealer, roundBids, roundTricks], saveGameState, { deep: true })
+watch([players, rounds, roundNumber, draft, dealer, roundBids, roundSuits, roundTricks], saveGameState, { deep: true })
 </script>
 
 <template>
@@ -387,9 +413,9 @@ watch([players, rounds, roundNumber, draft, dealer, roundBids, roundTricks], sav
 
 		<section class="trick-schedule" aria-labelledby="trick-schedule-title">
 			<div class="schedule-table">
-				<div class="schedule-header" :style="gridStyle"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span v-for="player in players" :key="player" class="player-column-header" :title="player">{{ playerInitial(player) }}</span></div>
+				<div class="schedule-header" :style="gridStyle"><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span aria-hidden="true"></span><span v-for="player in players" :key="player" class="player-column-header" :title="player">{{ playerInitial(player) }}</span></div>
 				<div v-for="(tricks, index) in trickSchedule" :key="index" class="schedule-row" :style="gridStyle" :class="{ 'status-good': tricksStatus(index + 1, tricks) === true, 'status-bad': tricksStatus(index + 1, tricks) === false }">
-					<span class="round-label"><span class="tricks-count">{{ tricks }}</span></span><span class="round-dealer" :title="dealerForRound(index + 1)">{{ playerInitial(dealerForRound(index + 1)) }}</span><button v-if="canStartBidding(index + 1)" class="bid-start-button" type="button" :title="roundBids[index + 1] ? 'Edit bids' : 'Start bidding'" :aria-label="roundBids[index + 1] ? 'Edit bids' : 'Start bidding'" :disabled="!dealer || players.length < 2" @click="startBidding(index + 1, tricks)"><img :src="lawIcon" alt=""></button><span v-else aria-hidden="true"></span><button v-if="canStartTricksEntry(index + 1)" class="tricks-start-button" type="button" :title="roundTricks[index + 1] ? 'Edit tricks' : 'Enter tricks'" :aria-label="roundTricks[index + 1] ? 'Edit tricks' : 'Enter tricks'" @click="startTricksEntry(index + 1, tricks)"><img :src="pokerCardsIcon" alt=""></button><span v-else aria-hidden="true"></span><div v-for="(player, playerIndex) in players" :key="player" class="round-player-cell" :class="{ 'round-total-leader': isRoundTotalLeader(index + 1, playerIndex) }" :title="player" :aria-label="`${player}: bid ${bidForRound(index + 1, playerIndex)}, tricks ${roundValue(index + 1, playerIndex, 'tricks')}, cumulative score ${cumulativeScoreForRound(index + 1, playerIndex) ?? ''}`"><span class="cell-bid">{{ bidForRound(index + 1, playerIndex) }}</span><span class="cell-tricks" :class="{ 'tricks-leader': isTricksLeader(index + 1, playerIndex) }">{{ roundValue(index + 1, playerIndex, 'tricks') }}</span><strong>{{ cumulativeScoreForRound(index + 1, playerIndex) ?? '' }}</strong></div>
+					<span class="round-label"><span class="tricks-count">{{ tricks }}</span></span><span class="round-dealer" :title="dealerForRound(index + 1)">{{ playerInitial(dealerForRound(index + 1)) }}</span><span v-if="suitForRound(index + 1)" class="round-suit" :class="{ 'black-suit': suitForRound(index + 1).name === 'Spades' || suitForRound(index + 1).name === 'Clubs', 'red-suit': suitForRound(index + 1).name === 'Diamonds' || suitForRound(index + 1).name === 'Hearts' }" :title="suitForRound(index + 1).name" :aria-label="suitForRound(index + 1).name">{{ suitForRound(index + 1).icon }}</span><span v-else aria-hidden="true"></span><button v-if="canStartBidding(index + 1)" class="bid-start-button" type="button" :title="roundBids[index + 1] ? 'Edit bids' : 'Start bidding'" :aria-label="roundBids[index + 1] ? 'Edit bids' : 'Start bidding'" :disabled="!dealer || players.length < 2" @click="startBidding(index + 1, tricks)"><img :src="lawIcon" alt=""></button><span v-else aria-hidden="true"></span><button v-if="canStartTricksEntry(index + 1)" class="tricks-start-button" type="button" :title="roundTricks[index + 1] ? 'Edit tricks' : 'Enter tricks'" :aria-label="roundTricks[index + 1] ? 'Edit tricks' : 'Enter tricks'" @click="startTricksEntry(index + 1, tricks)"><img :src="pokerCardsIcon" alt=""></button><span v-else aria-hidden="true"></span><div v-for="(player, playerIndex) in players" :key="player" class="round-player-cell" :class="{ 'round-total-leader': isRoundTotalLeader(index + 1, playerIndex) }" :title="player" :aria-label="`${player}: bid ${bidForRound(index + 1, playerIndex)}, tricks ${roundValue(index + 1, playerIndex, 'tricks')}, cumulative score ${cumulativeScoreForRound(index + 1, playerIndex) ?? ''}`"><span class="cell-bid">{{ bidForRound(index + 1, playerIndex) }}</span><span class="cell-tricks" :class="{ 'tricks-leader': isTricksLeader(index + 1, playerIndex) }">{{ roundValue(index + 1, playerIndex, 'tricks') }}</span><strong>{{ cumulativeScoreForRound(index + 1, playerIndex) ?? '' }}</strong></div>
 				</div>
 			</div>
 		</section>
@@ -422,6 +448,7 @@ watch([players, rounds, roundNumber, draft, dealer, roundBids, roundTricks], sav
 				<button class="close-button" type="button" aria-label="Close bidding dialog" @click="closeBidding">&#10005;</button>
 				<p class="eyebrow">Round {{ biddingRound.number }} &middot; {{ biddingRound.tricks }} tricks</p><h2 id="bidding-dialog-title">Place bids</h2>
 				<p class="modal-copy">Bidding starts after the dealer and ends with the dealer. Total bids must not equal {{ biddingRound.trickLimit }}.</p>
+				<div class="suit-choices"><span>Trump suit</span><div class="suit-choice-list"><button v-for="suit in suits" :key="suit.name" class="suit-choice" :class="{ selected: biddingRound.suit === suit.name, 'black-suit': suit.name === 'Spades' || suit.name === 'Clubs', 'red-suit': suit.name === 'Diamonds' || suit.name === 'Hearts' }" type="button" :aria-label="suit.name" :title="suit.name" :aria-pressed="biddingRound.suit === suit.name" @click="chooseSuit(suit.name)">{{ suit.icon }}</button></div></div>
 				<div class="bid-fields"><div v-for="(player, index) in biddingPlayers" :key="player.name" class="bid-player"><span class="bid-player-name">{{ index + 1 }}. {{ player.name }}<small v-if="index === biddingPlayers.length - 1">Dealer, bids last</small></span><div class="bid-options"><button v-for="bid in bidOptions(biddingRound.tricks)" :key="bid" type="button" class="bid-option" :class="{ selected: player.bid === bid }" :disabled="index === biddingPlayers.length - 1 && dealerBidIsForbidden(bid)" @click="chooseBid(player, bid)">{{ bid }}</button></div></div></div>
 				<p v-if="biddingError" class="player-error" role="alert">{{ biddingError }}</p>
 				<div class="modal-actions"><button class="cancel-button" type="button" @click="closeBidding">Cancel</button><button class="add-button" type="button" @click="saveBids">Save bids</button></div>
