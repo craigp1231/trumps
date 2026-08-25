@@ -471,7 +471,7 @@ watch([players, rounds, roundNumber, draft, dealer, roundBids, roundSuits, round
 				<button class="close-button" type="button" aria-label="Close tricks dialog" @click="closeTricksEntry">&#10005;</button>
 				<p class="eyebrow">Round {{ tricksRound.number }} &middot; {{ tricksRound.tricks }} tricks</p><h2 id="tricks-dialog-title">Enter tricks won</h2>
 				<p class="modal-copy">Choose how many tricks each player actually won.</p>
-				<div class="bid-fields"><div v-for="player in tricksPlayers" :key="player.name" class="bid-player"><span class="bid-player-name">{{ player.name }}</span><div class="bid-options"><button v-for="tricksWon in tricksOptions(tricksRound.tricks)" :key="tricksWon" type="button" class="bid-option" :class="{ selected: player.tricks === tricksWon }" @click="player.tricks = tricksWon">{{ tricksWon }}</button></div></div></div>
+				<div class="bid-fields"><div v-for="player in tricksPlayers" :key="player.name" class="bid-player"><span class="bid-player-name tricks-player-name">{{ player.name }}<small>Bid {{ bidForRound(tricksRound.number, player.playerIndex) }}</small></span><div class="bid-options"><button v-for="tricksWon in tricksOptions(tricksRound.tricks)" :key="tricksWon" type="button" class="bid-option" :class="{ selected: player.tricks === tricksWon }" @click="player.tricks = tricksWon">{{ tricksWon }}</button></div></div></div>
 				<div class="modal-actions"><button class="cancel-button" type="button" @click="closeTricksEntry">Cancel</button><button class="add-button" type="button" @click="saveTricks">Save tricks</button></div>
 			</section>
 		</div>
