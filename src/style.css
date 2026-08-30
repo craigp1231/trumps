@@ -1,4 +1,4 @@
-:root { font-family: 'Trebuchet MS', 'Gill Sans', sans-serif; color: #273137; background: #f4f0e8; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+:root { font-family: 'Trebuchet MS', 'Gill Sans', sans-serif; color: #273137; background: #f4f0e8; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; font-size: 20px }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; }
 button, input { font: inherit; }
@@ -50,7 +50,7 @@ output { font: 20px Georgia, serif; }
 .history-row small { color: #9b9d98; font: 11px 'Trebuchet MS', sans-serif; }
 .round-dealer { color: #3c7772; font-weight: 700; }
 .schedule-table { width: max-content; max-width: 100%; margin: 0; }
-.schedule-header, .schedule-row { display: grid; margin: 0; grid-template-columns: 1.5em 1em 1em 1em 4.5vh 4.5vh repeat(var(--player-count), 2em); gap: 0; align-items: center; padding: 0; }
+.schedule-header, .schedule-row { display: grid; margin: 0; grid-template-columns: 1.5em 1em 1em 1em 2.5em 2.5em repeat(var(--player-count), 2em); gap: 0; align-items: center; padding: 0; }
 .schedule-header { color: #929795; font-size: 1em; letter-spacing: 1px; text-transform: uppercase; }
 .schedule-row { font-size: 1em; }
 .round-label { display: flex; align-items: center; gap: 7px; padding-left: 5px; }
@@ -70,11 +70,11 @@ output { font: 20px Georgia, serif; }
 .round-player-cell .cell-tricks { right: 5px; }
 .round-player-cell .cell-tricks.tricks-leader { color: #b00000; font-weight: 900; }
 .round-player-cell strong { transform: translateY(0.3em); font: 1.2em serif; }
-.bid-start-button { display: grid; width: 4vh; height: 4vh; place-items: center; border: 1px solid #5f9690; border-radius: 3px; padding: 0; color: #2f716c; background: #e5efec; font-size: 11px; }
-.bid-start-button img { display: block; width: 2vh; height: 2vh; }
+.bid-start-button { display: grid; width: 4em; height: 4em; place-items: center; border: 1px solid #5f9690; border-radius: 3px; padding: 0; color: #2f716c; background: #e5efec; font-size: 11px; }
+.bid-start-button img { display: block; width: 2em; height: 2em; }
 .bid-start-button:disabled { cursor: not-allowed; opacity: .55; }
-.tricks-start-button { display: grid; width: 4vh; height: 4vh; place-items: center; border: 1px solid #c18b4b; border-radius: 3px; padding: 0; color: #9b672e; background: #f7ead8; font-size: 11px; }
-.tricks-start-button img { display: block; width: 2vh; height: 2vh; }
+.tricks-start-button { display: grid; width: 4em; height: 4em; place-items: center; border: 1px solid #c18b4b; border-radius: 3px; padding: 0; color: #9b672e; background: #f7ead8; font-size: 11px; }
+.tricks-start-button img { display: block; width: 2em; height: 2em; }
 .tricks-start-button:disabled { cursor: not-allowed; opacity: .45; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
 .modal-backdrop { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; overflow-x: hidden; padding: 12px; background: rgba(39, 49, 55, .42); }
