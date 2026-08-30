@@ -193,12 +193,20 @@ function startBidding(number, tricks) {
 	const order = players.value.slice(dealerIndex + 1).concat(players.value.slice(0, dealerIndex + 1))
 	biddingRound.value = { number, tricks, trickLimit: tricks === 'NT' ? 0 : tricks }
 	biddingRound.value.suit = roundSuits.value[number] ?? null
-	biddingPlayers.value = order.map((name) => ({ name, playerIndex: players.value.indexOf(name), bid: roundBids.value[number]?.[players.value.indexOf(name)] ?? null }))
+	biddingPlayers.value = order.map((name) => {
+		const playerIndex = players.value.indexOf(name)
+		const existingBid = roundBids.value[number]?.[playerIndex]
+		return {
+			name,
+			playerIndex,
+			bid: tricks === 'NT' ? 0 : (existingBid ?? null),
+		}
+	})
 	biddingError.value = ''
 }
 
 function canStartBidding(number) {
-	return trickSchedule[number - 1] !== 'NT' && (number === 1 || tricksStatus(number - 1, trickSchedule[number - 2]) === true)
+	return number === 1 || tricksStatus(number - 1, trickSchedule[number - 2]) === true
 }
 
 function hasAllBids(number) {
@@ -245,6 +253,7 @@ function bidOptions(tricks) {
 
 function saveBids() {
 	const total = biddingPlayers.value.reduce((sum, player) => sum + (player.bid ?? 0), 0)
+	const allowedTotal = biddingRound.value.tricks === 'NT' ? 0 : biddingRound.value.trickLimit
 	if (!biddingRound.value.suit) {
 		biddingError.value = 'Choose a suit for the round.'
 		return
@@ -253,8 +262,12 @@ function saveBids() {
 		biddingError.value = 'Choose a bid for every player.'
 		return
 	}
-	if (total === biddingRound.value.trickLimit) {
-		biddingError.value = `The total bid cannot equal ${biddingRound.value.trickLimit} tricks.`
+	if (biddingRound.value.tricks === 'NT' && biddingPlayers.value.some((player) => player.bid !== 0)) {
+		biddingError.value = 'For the no tricks round, every player must bid 0.'
+		return
+	}
+	if (biddingRound.value.tricks !== 'NT' && total === allowedTotal) {
+		biddingError.value = `The total bid cannot equal ${allowedTotal} tricks.`
 		return
 	}
 	roundBids.value[biddingRound.value.number] = biddingPlayers.value.reduce((bids, player) => {
